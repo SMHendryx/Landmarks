@@ -1,0 +1,6 @@
+Notes from Faces meeting on 9/27/17
+
+Report two numbers to compare performance of OpenFace and Face++:
+	1. Percentage of images run
+	2. RMSE of each image
+		-Which gives the accuracy conditioned on a face being found by the software

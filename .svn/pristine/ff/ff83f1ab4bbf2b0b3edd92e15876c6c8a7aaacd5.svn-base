@@ -1,0 +1,50 @@
+# Visualizes landmarks specified in args on top of base image. Requires image and landmark file names to correspond
+# Top-level, 'main' program
+# Author: Sean Hendryx seanmhendryx@email.arizona.edu
+# Nov. 2017
+
+__author__ = 'seanmhendryx'
+
+
+import sys
+import numpy
+import Pillow
+
+
+def main():
+    """
+    FIRST ARGUMENT: path to base images
+    SECOND ARGUMENT: path to write output (plotted landmarks)
+    THIRD ARGUMENT: path to annotations
+    FOURTH ARGUMENT ONWARDS: additional coordinate files, such as from landmark-finding software
+    Read args
+    For each file in annotations
+        Plot coordinate files
+    """
+
+    args = sys.argv
+
+    # get directory of annotations:
+    annoDirec = getAnnoDirec(args)
+
+    # get directories of coordinates INCLUDING ANNOTATIONS
+    coordDirecs = getCoordDirecs(args)
+
+
+
+def getAnnoDirec(args):
+    # Returns annotations directory given the arguments
+    # assume anno. direc. is THIRD argument
+    annoDirec = args[3]
+    return annoDirec
+
+def getCoordDirecs(args):
+    # Returns the coordinate directories (starting from third argument)
+    argsLength = len(sys.argv)
+
+
+
+# Main Function
+if __name__ == '__main__':
+    main()
+

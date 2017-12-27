@@ -1,0 +1,86 @@
+# Visualizes landmarks specified in args on top of base image. Requires image and landmark file names to correspond
+# Top-level, 'main' program
+# Author: Sean Hendryx seanmhendryx@email.arizona.edu
+# Nov. 2017
+
+__author__ = 'seanmhendryx'
+
+
+import os
+import sys
+from glob import glob
+import numpy
+from PIL import Image
+from PIL import ImageDraw
+
+
+def main():
+    """
+    FIRST ARGUMENT: path to base images
+    SECOND ARGUMENT: path to write output (plotted landmarks)
+    THIRD ARGUMENT: path to annotations
+    FOURTH ARGUMENT ONWARDS: additional coordinate files to be plotted, such as from landmark-finding software
+    
+    psuedocode:
+    Read args
+    For each file in annotations
+        Plot coordinate files
+    """
+
+    args = sys.argv
+
+    # get directory of annotations:
+    annoDirec = getAnnoDirec(args)
+
+    # get directories of coordinates INCLUDING ANNOTATIONS
+    coordDirecs = getCoordDirecs(args)
+
+    baseImageFiles = getListOfImageFiles(annoDirec)
+
+    #Loop through base image files:
+    for bif in baseImageFiles:
+        #read in image:
+
+        #draw image:
+
+        #plot coords specified in args:
+        for direc in coordDirecs:
+
+
+
+def getListOfImageFiles(direc,types = ('*.png','*.jpg', '*.jpeg', '*.bmp')):
+    grabbedFiles = []
+    for ext in types:
+        grabbedFiles.extend(glob(os.path.join(direc, ext)))
+
+    print("Grabbed image files: ")
+    print(grabbedFiles)
+
+    return grabbedFiles
+
+def getCoordDirecs(args):
+    # Returns the coordinate directories (starting from third argument)
+    argsLength = len(sys.argv)
+    #numCoordDirecs = argsLength - 3 # subtracting 2 instead of 3 bc zero-indexed
+    indexOfFirstCoordDirec = 3
+    coordDirecs = args[indexOfFirstCoordDirec:argsLength + 1]
+
+    print("Directories of coordinates including annotations: ", coordDirecs)
+
+    return coordDirecs
+
+def getAnnoDirec(args):
+    # Returns annotations directory given the arguments
+    # assume anno. direc. is THIRD argument
+    annoDirec = args[3]
+    print("Directory of annotations: ", annoDirec)
+    return annoDirec
+
+
+
+
+
+# Main Function
+if __name__ == '__main__':
+    main()
+

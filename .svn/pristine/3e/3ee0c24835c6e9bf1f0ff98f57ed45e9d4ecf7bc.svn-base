@@ -1,0 +1,33 @@
+# Makes a Python virtual environment for plotting face landmark coordinates on the image from which they came.
+# Author: Sean Hendryx seanmhendryx@email.arizona.edu
+# November 2017
+# reference can be found here: http://docs.python-guide.org/en/latest/dev/virtualenvs/
+
+
+pip install virtualenv
+
+# test install
+virtualenv --version
+
+# make venv with path to python interpreter (sets python version)
+mkvirtualenv visualizeLandmarksEnv --python=/usr/local/bin/python3
+#on v11:
+#mkvirtualenv visualizeLandmarksEnv --python=/usr/bin/python3
+
+# cd into env:
+cd /Users/seanmhendryx/.python_virtual_envs/visualizeLandmarksEnv
+
+# make txt file of dependencies:
+vim requirements.txt
+
+#activate environment
+source bin/activate
+
+#install requirements:
+pip install -r requirements.txt
+
+#to deactivate:
+#
+# to reactivate
+echo 'To activate virtualenv: '
+echo 'source bin/activate'

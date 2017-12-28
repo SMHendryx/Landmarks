@@ -41,25 +41,25 @@ def main():
     coordDirecs = getCoordDirecs(args)
     print("coordDirecs", coordDirecs)
 
-    #Loop through base image files:
-    # looping through images first to keep image open and plot other landmarks on top of it
-    for bif in baseImageFiles:
-        print("Plotting landmarks on: ")
-        print(bif)
-        #read in image:
-        img = Image.open(bif, mode='r')
+    #plot coords specified in args:
+    for direc in coordDirecs:
+        #Loop through base image files:
+        for bif in baseImageFiles:
+            print("Plotting landmarks on: ")
+            print(bif)
+            #read in image:
+            img = Image.open(bif, mode='r')
 
-        #draw image:
-        plot = ImageDraw.Draw(img)
+            #draw image:
+            plot = ImageDraw.Draw(img)
 
-        #to show image: (don't do this)
-        #img.show()
+            #to show image: (don't do this)
+            #img.show()
 
-        baseImageFileString = os.path.basename(bif)
-        baseImageFileStringNoExt = os.path.splitext(baseImageFileString)[0]
+            baseImageFileString = os.path.basename(bif)
+            baseImageFileStringNoExt = os.path.splitext(baseImageFileString)[0]
 
-        #plot coords specified in args:
-        for direc in coordDirecs:
+
             print("Plotting coordinates for ", direc, " on ", bif, ".")
 
             # I am here:
@@ -76,19 +76,25 @@ def main():
                 # I AM HERE:
                 plotLandmarksOnBaseImage(baseImageFileStringNoExt,img, plot, landmarkFile, landmarkFormat, outputDirecPath)
 
-            #end direc for loop
-
-        savePlotOfLandmarksOnBaseImage(baseImageFileStringNoExt, img, outputDirecPath)
-        # end bif for loop
+            savePlotOfLandmarksOnBaseImage(baseImageFileStringNoExt, img, landmarkFormat, outputDirecPath)
+            # end bif for loop
+        #end direc for loop
 
 #end main()
 
 
-def savePlotOfLandmarksOnBaseImage(baseImageFileStringNoExt, img, outputDirecPath):
-    # Save the plotted landmarks on a PIL Image object. Assumes Image is already open.
+def savePlotOfLandmarksOnBaseImage(baseImageFileStringNoExt, img, landmarkFormat, outputDirecPath):
+    # Save the plotted landmarks on a PIL Image object in a new directory of name landmarkFormat inside outputDirecPath. Assumes Image is already open.
     # :param baseImageFileStringNoExt: base image file (string of base image name (not complete path))
     # :param img: PIL Image object
-    # :param outputDirecPath: path to save images with plotted landmarks
+    # :param landmarkFormat: String specifying inferred landmark format
+    # :param outputDirecPath: path to save images with plotted landmarks (in which a new directory will be created if it does not exist)
+
+    landmarkFormatDirec = landmarkFormat
+    outputDirecPath = os.path.join(outputDirecPath, landmarkFormatDirec)
+
+    if not os.path.exists(outputDirecPath):
+        os.makedirs(outputDirecPath)
 
     img.save(os.path.join(outputDirecPath, baseImageFileStringNoExt + "_visualized.png"))
     
@@ -110,18 +116,33 @@ def plotLandmarksOnBaseImage(baseImageFileStringNoExt, img, plot, landmarkFile, 
     #   TODO:
     if landmarkFormat == "300wAnnotations":
         plot300wLandmarksOnBaseImage(baseImageFileStringNoExt, img, plot, landmarkFile, outputDirecPath)
+    elif landmarkFormat == "OpenFaceNativeOutput":
+        plotOpenFaceLandmarksOnBaseImage(baseImageFileStringNoExt, img, plot, landmarkFile, outputDirecPath)
     elif landmarkFormat == "Face++NativeOutput":
         print("Code to complete")
 
+
+def plotOpenFaceLandmarksOnBaseImage(baseImageFileStringNoExt, img, plot, landmarkFile, outputDirecPath):
+    # :param baseImageFileStringNoExt: base image file (string of base image name (not complete path))
+    # :param img: PIL Image object
+    landmarks = numpy.genfromtxt(landmarkFile, delimiter=' ', skip_header =3, skip_footer = 50)
+    #Visualization
+    #print("plot object: ", plot)
+    #print("img object: ", img)
+    #numLandmarkLines = 68
+    #landmarks = landmarks[0:numLandmarkLines - 1]
+    for i in numpy.arange(landmarks.shape[0]):
+        x = landmarks[i,0]
+        y = landmarks[i,1]
+        plot.text(xy = (x,y), text = "*"+str(i+1))#, fill = (255,0,0, 255))
 
 def plot300wLandmarksOnBaseImage(baseImageFileStringNoExt, img, plot, landmarkFile, outputDirecPath):
     # :param baseImageFileStringNoExt: base image file (string of base image name (not complete path))
     # :param img: PIL Image object
     landmarks = numpy.genfromtxt(landmarkFile, delimiter=' ', skip_header =3, skip_footer = 1)
     #Visualization
-    #try:
-    print("plot object: ", plot)
-    print("img object: ", img)
+    #print("plot object: ", plot)
+    #print("img object: ", img)
     for i in numpy.arange(landmarks.shape[0]):
         x = landmarks[i,0]
         y = landmarks[i,1]
@@ -153,6 +174,7 @@ def guessLandmarkFormatOfFile(fileName):
     elif  linesInFile == 72:
         landmarkFormat = "300wAnnotations"
 
+    print("landmarkFormat of file, ", fileName, " : ", landmarkFormat,)
     return(landmarkFormat)
 
 

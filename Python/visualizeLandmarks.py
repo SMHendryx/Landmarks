@@ -119,8 +119,12 @@ def plotLandmarksOnBaseImage(baseImageFileStringNoExt, img, plot, landmarkFile, 
     elif landmarkFormat == "OpenFaceNativeOutput":
         plotOpenFaceLandmarksOnBaseImage(baseImageFileStringNoExt, img, plot, landmarkFile, outputDirecPath)
     elif landmarkFormat == "Face++NativeOutput":
-        print("Code to complete")
+        plotFacePPLandmarksOnBaseImage(baseImageFileStringNoExt, img, plot, landmarkFile, outputDirecPath)
 
+def plotFacePPLandmarksOnBaseImage(baseImageFileStringNoExt, img, plot, landmarkFile, outputDirecPath):
+    # :param baseImageFileStringNoExt: base image file (string of base image name (not complete path))
+    # :param img: PIL Image object
+    print("Code to complete")
 
 def plotOpenFaceLandmarksOnBaseImage(baseImageFileStringNoExt, img, plot, landmarkFile, outputDirecPath):
     # :param baseImageFileStringNoExt: base image file (string of base image name (not complete path))

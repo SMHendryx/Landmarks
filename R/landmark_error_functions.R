@@ -11,9 +11,9 @@ installAndLoadPackages <- function(packages){
     lapply(packages, library, character.only = TRUE)
 }
 
-##Load packages:
-packages = c('ggplot2', 'data.table', 'dplyr', 'tools', 'metrics')#, 'plotly', 'phia', 'xtable', 'Morpho')
-lapply(packages, library, character.only = TRUE)
+# Load packages:
+packages = c('ggplot2', 'data.table', 'dplyr', 'tools')#, 'metrics', 'plotly', 'phia', 'xtable', 'Morpho')
+installAndLoadPackages(packages)
 
 
 # Function Declarations:
@@ -66,11 +66,11 @@ computeNormalizedRMSE <- function(distVec, p1, p2){
 normalizeDistancesByIODistance <- function(dist_face_i, p1, p2){
     # Normalizes the values in dist_face_i by dividing by the 2d Euclidean distance between p1 and p2
     # @param dist_face_i: a vector of distances between annotations and ground truth points
-    # @param p1, p2: vector of ground truth coordinates. The distance between p1 and p2 is the normalization constant
+    # @param p1, p2: vectors of ground truth coordinates. The distance between p1 and p2 is the normalization constant
     
     d_outer = sqrt((p1[[1]] - p2[[1]])^2 + (p1[[2]] - p2[[2]])^2 )
     io_normalized_dist_face_i = dist_face_i/d_outer
-    retrun(io_normalized_dist_face_i)
+    return(io_normalized_dist_face_i)
 }
 
 #not in:

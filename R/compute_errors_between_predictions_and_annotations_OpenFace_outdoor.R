@@ -15,7 +15,7 @@
 # Must source helper functions (currently coded assuming that the helper function file is in the same directory from which the script is run):
 source("landmark_error_functions.R")
 
-packages = c('ggplot2', 'data.table', 'dplyr', 'tools', 'metrics')#, 'plotly', 'phia', 'xtable', 'Morpho')
+packages = c('ggplot2', 'data.table', 'dplyr', 'tools')#, 'metrics', 'plotly', 'phia', 'xtable', 'Morpho')
 
 installAndLoadPackages(packages)
 
@@ -160,9 +160,10 @@ imageFaces = unique(distDT[,imageFace])
 
 errorByFaceDT = data.table(imageFace = imageFaces)
 
+# Loop through all faces, computing normalized distances between predictions and annotations:
 for(imageFace_i in imageFaces){
-    
 
+    # Get the vector of unnormalized distances for imageFace_i:
     dist_face_i = distDT[imageFace == imageFace_i,distance]
 
     TEST = FALSE
@@ -179,7 +180,7 @@ for(imageFace_i in imageFaces){
         }
         # Check that dist_face_i == dist_i
         all.equal(dist_face_i, dist_i)
-        }
+    }
     #RMSE:
     #rmse = sqrt(mean(dist^2))
     

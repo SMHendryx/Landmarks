@@ -8,18 +8,21 @@
 # First argument is path to directory of predictions, second is path to directory of annotations, third is directory in which to write results
 # example usage: Rscript compute_RMSE_between_predictions_and_annotations.R path/to/predictions/ path/to/annotations/ path/in/which/to/write/results
 
-##Load packages:
-packages = c('ggplot2', 'data.table', 'dplyr', 'tools', 'metrics')#, 'plotly', 'phia', 'xtable', 'Morpho')
-lapply(packages, library, character.only = TRUE)
+
+#--------------------------------------------------------------------------------#
+#  LOAD PACKAGES
+#--------------------------------------------------------------------------------#
 # Must source helper functions (currently coded assuming that the helper function file is in the same directory from which the script is run):
 source("landmark_error_functions.R")
 
+packages = c('ggplot2', 'data.table', 'dplyr', 'tools', 'metrics')#, 'plotly', 'phia', 'xtable', 'Morpho')
+
+installAndLoadPackages(packages)
+
 
 #--------------------------------------------------------------------------------#
-#  MAIN 
+#  GET ARGS
 #--------------------------------------------------------------------------------#
-
-# Get command line arguments:
 #args<-commandArgs(TRUE)
 
 software = "OpenFace"
@@ -32,7 +35,6 @@ pathInWhichToWrite = "/data/faces/Landmarks/300w/experiments/OpenFace/300w_cropp
 #--------------------------------------------------------------------------------#
 #  GET COORDINATES OF PREDICTIONS 
 #--------------------------------------------------------------------------------#
-#path to predictions
 setwd(pathToPredictions)
 
 #Read .pts file in:
@@ -80,8 +82,11 @@ for(file in files){
     DT <- rbind(DT, DT_i)
 }
 
+
+#--------------------------------------------------------------------------------#
+#  GET COORDINATES OF ANNOTATIONS
+#--------------------------------------------------------------------------------#
 #Now make same DT of ground truths (annotated dataset).
-#path to annotations:
 setwd(pathToAnnotations)
 files <- list.files(pattern = "\\.pts$")
 
@@ -118,6 +123,7 @@ for(file in files){
 
     annoDT <- rbind(annoDT, DT_i)
 }
+
 
 #---------------------------------------------------------------------------------#
 #   COMPUTE ERRORS
@@ -214,6 +220,9 @@ distDT[,V1.x := NULL]
 distDT[,V2.y := NULL]
 distDT[,V2.x := NULL]
 
+#---------------------------------------------------------------------------------#
+#   WRITE OUTPUT
+#---------------------------------------------------------------------------------#
 if(writeControl){
     setwd(pathInWhichToWrite)
     write.csv(distDT, "Euclidean_distance_between_predictions_and_annotations.csv")

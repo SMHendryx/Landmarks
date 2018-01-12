@@ -3,10 +3,17 @@
 # Helper functions for facial landmark analyses
 
 
+installAndLoadPackages <- function(packages){
+    # Installs packages if not already installed and then loads.
+    newPackages <- packages[!(packages %in% installed.packages()[,"Package"])]
+    if(length(newPackages)) install.packages(newPackages)
+    # Now load:
+    lapply(packages, library, character.only = TRUE)
+}
+
 ##Load packages:
 packages = c('ggplot2', 'data.table', 'dplyr', 'tools', 'metrics')#, 'plotly', 'phia', 'xtable', 'Morpho')
 lapply(packages, library, character.only = TRUE)
-# Must source helper functions (currently coded assuming that the helper function file is in the same directory from which the script is run):
 
 
 # Function Declarations:

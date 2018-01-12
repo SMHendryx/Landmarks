@@ -61,8 +61,7 @@ def main():
 
 
             print("Plotting coordinates for ", direc, " on ", bif, ".")
-
-            # I am here:
+            
             # Find corresponding landmark file in direc for bif:
             landmarkFile = findCorrespondingLandmarkFile(bif, direc)
             #print(bif, " corresponding landmark file: ", landmarkFile)

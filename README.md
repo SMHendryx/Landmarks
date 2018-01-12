@@ -11,5 +11,5 @@ To save images with plotted landmarks run `Python/visualizeLandmarks.py`. The co
 
 ### Dependencies
 
-[numpy](http://www.numpy.org/)
-[Pillow](https://github.com/python-pillow/Pillow)
+- [numpy](http://www.numpy.org/)
+- [Pillow](https://github.com/python-pillow/Pillow)

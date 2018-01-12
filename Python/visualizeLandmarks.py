@@ -120,10 +120,12 @@ def plotLandmarksOnBaseImage(baseImageFileStringNoExt, img, plot, landmarkFile, 
         plotOpenFaceLandmarksOnBaseImage(baseImageFileStringNoExt, img, plot, landmarkFile, outputDirecPath)
     elif landmarkFormat == "Face++NativeOutput":
         plotFacePPLandmarksOnBaseImage(baseImageFileStringNoExt, img, plot, landmarkFile, outputDirecPath)
+    elif landmarkFormat == "Face++InOFFormat"
 
 def plotFacePPLandmarksOnBaseImage(baseImageFileStringNoExt, img, plot, landmarkFile, outputDirecPath):
     # :param baseImageFileStringNoExt: base image file (string of base image name (not complete path))
     # :param img: PIL Image object
+    # TODO: Need to internalize Patrick's code from: Visualization.py
     print("Code to complete")
 
 def plotOpenFaceLandmarksOnBaseImage(baseImageFileStringNoExt, img, plot, landmarkFile, outputDirecPath):
@@ -177,6 +179,8 @@ def guessLandmarkFormatOfFile(fileName):
         landmarkFormat = "multiePIE68Points"
     elif  linesInFile == 72:
         landmarkFormat = "300wAnnotations"
+    else # TODO: This should actually also be an else if
+        landmarkFormat = "Face++InOFFormat"
 
     print("landmarkFormat of file, ", fileName, " : ", landmarkFormat,)
     return(landmarkFormat)

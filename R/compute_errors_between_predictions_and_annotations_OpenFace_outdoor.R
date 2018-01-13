@@ -35,6 +35,7 @@ pathInWhichToWrite = "/data/faces/Landmarks/300w/experiments/OpenFace/300w_cropp
 #--------------------------------------------------------------------------------#
 #  GET COORDINATES OF PREDICTIONS 
 #--------------------------------------------------------------------------------#
+print("Getting coordinates of predictions.")
 setwd(pathToPredictions)
 
 #Read .pts file in:
@@ -86,6 +87,7 @@ for(file in files){
 #--------------------------------------------------------------------------------#
 #  GET COORDINATES OF ANNOTATIONS
 #--------------------------------------------------------------------------------#
+print("Getting coordinates of annotations.")
 #Now make same DT of ground truths (annotated dataset).
 setwd(pathToAnnotations)
 files <- list.files(pattern = "\\.pts$")
@@ -128,8 +130,9 @@ for(file in files){
 #---------------------------------------------------------------------------------#
 #   COMPUTE ERRORS
 #---------------------------------------------------------------------------------#
+print("Computing errors.")
 
-keycols <- c("image", "UID")
+keycols <- c("image", "UID", "pointID")
 
 distDT <- merge(DT,annoDT,by=keycols)
 
@@ -144,13 +147,26 @@ dist <- NULL
 for(i in 1:nrow(X1)){
     dist[i] <- euc.dist(X1[i,],X2[i,])
 }
-#dist
 
 #RMSE:
 rmse_all_points = sqrt(mean(dist^2))
 print(paste0("UnnoRMSE between all points: ", rmse_all_points))
 
 distDT[,distance := dist]
+
+
+#Annotated (ground truth) point columns are *.y (because annoDT was second object given to merge() above)
+#Change column names to _annotated and _predicted
+distDT[,x_annotations := V1.y]
+distDT[,y_annotations := V2.y]
+distDT[,x_predictions := V1.x]
+distDT[,y_predictions := V2.x]
+
+distDT[,V1.y := NULL]
+distDT[,V1.x := NULL]
+distDT[,V2.y := NULL]
+distDT[,V2.x := NULL]
+
 
 #compute error by face number:
 #Add new column with image and face
@@ -169,9 +185,9 @@ for(imageFace_i in imageFaces){
     TEST = FALSE
     if(TEST){
         #Get predicted coordinates for face:
-        X1 <- distDT[imageFace == imageFace_i,.(V1.x, V2.x)]
+        X1 <- distDT[imageFace == imageFace_i,.(x_predictions, y_predictions)]
         #Get ground truth coordinates for face:
-        X2 <- distDT[imageFace == imageFace_i,.(V1.y, V2.y)]
+        X2 <- distDT[imageFace == imageFace_i,.(x_annotations, y_annotations)]
         
         # Make distance(/error) vector for the ith face, where each element in the vector is the distance between the annotated and ground truth point:
         dist_i <- NULL
@@ -184,9 +200,11 @@ for(imageFace_i in imageFaces){
     #RMSE:
     #rmse = sqrt(mean(dist^2))
     
-    #normalize error by interocular distance (distance between landmark 37 and landmark 46)
-    p1 = X1[37,]
-    p2 = X2[46,]
+    #normalize error by interocular distance of each face (distance between landmark 37 and landmark 46)
+    p1 = distDT[imageFace == imageFace_i & pointID == 37, .(x_annotations, y_annotations)]
+    p2 = distDT[imageFace == imageFace_i & pointID == 46, .(x_annotations, y_annotations)]
+    #p1 = X1[37,]
+    #p2 = X2[46,]
     rmse = computeNormalizedRMSE(dist_face_i, p1, p2)
     
     print(paste0("Normalized RMSE between points of face ",imageFace_i, ": ", rmse))
@@ -195,6 +213,7 @@ for(imageFace_i in imageFaces){
 
     # Also normalize and save distances for each landmark:
     io_normalized_dist_face_i = normalizeDistancesByIODistance(dist_face_i, p1, p2)
+    # TODO: ^THIS NEEDS TO BE TESTED.
     distDT[imageFace == imageFace_i, normalizedDistance := io_normalized_dist_face_i]
 }
 
@@ -209,22 +228,15 @@ print(paste0("RMSE for all points, normalized by interocular distance:"))
 print(normalized_RMSE_all_points)
 
 
-#Annotated (ground truth) point columns are *.y (because annoDT was second object given to merge() above)
-#Change column names to _annotated and _predicted
-distDT[,x_annotations := V1.y]
-distDT[,y_annotations := V2.y]
-distDT[,x_predictions := V1.x]
-distDT[,y_predictions := V2.x]
 
-distDT[,V1.y := NULL]
-distDT[,V1.x := NULL]
-distDT[,V2.y := NULL]
-distDT[,V2.x := NULL]
 
 #---------------------------------------------------------------------------------#
 #   WRITE OUTPUT
 #---------------------------------------------------------------------------------#
 if(writeControl){
+    # Will overwrite existing files of the same names.
+    #dir.create(file.path(mainDir, subDir), showWarnings = FALSE)
+    dir.create(pathInWhichToWrite, showWarnings = FALSE)
     setwd(pathInWhichToWrite)
     write.csv(distDT, "Euclidean_distance_between_predictions_and_annotations.csv")
     write.csv(normalized_MAD_all_points, "normalized_MAD_between_all_predictions_and_annotations.csv")

@@ -69,6 +69,8 @@ getPredictions = function(pathToPredictions){
   notEmpty = files %!in% empty
   files = files[notEmpty]
 
+  printer("Getting coordinates from files: ", files)
+
   firstFile = files[1]
 
   #add control for files that only contain 68 points vs the files from OpenFace that contain more data:
@@ -105,9 +107,10 @@ getPredictions = function(pathToPredictions){
       df = read.table(file, fill = TRUE, na.strings = c("NA", "NaN"), nrows = numLines)
       DT_i = as.data.table(df)
       DT_i[,name := file]
-      DT_i[,image := substr(file, 1,10)]
+      imageName = file_path_sans_ext(file)
+      DT_i[,image := imageName]
 
-      #Add face indicator column:
+      #Add face indicator column (IN CASE MULTIPLE FACES PER IMAGE (this is brittle. Depends on the filename to which each face's coordinates are written)):
       DT_i[,face := file_path_sans_ext(read.table(text = file, sep = "_", as.is = TRUE)$V4)]
       
       #Add point id:
@@ -116,7 +119,7 @@ getPredictions = function(pathToPredictions){
       DT_i <- cbind(pointID=pointID, DT_i)
       
       #Add unique id for each point in all images
-      DT_i[,UID := paste0(substr(file, 1,10), "_", pointID)]
+      DT_i[,UID := paste0(imageName, "_", pointID)]
       
       DT <- rbind(DT, DT_i)
   }
@@ -251,8 +254,8 @@ computeErrors = function(DT, annoDT, writeControl = FALSE, pathInWhichToWrite = 
       #normalize error by interocular distance of each face (distance between landmark 37 and landmark 46)
       p1 = distDT[imageFace == imageFace_i & pointID == 37, .(x_annotations, y_annotations)]
       p2 = distDT[imageFace == imageFace_i & pointID == 46, .(x_annotations, y_annotations)]
-      #p1 = X1[37,]
-      #p2 = X2[46,]
+
+      # Compute the normalized error for each face:
       rmse = computeNormalizedRMSE(dist_face_i, p1, p2)
       
       print(paste0("Normalized RMSE between points of face ",imageFace_i, ": ", rmse))
@@ -282,6 +285,7 @@ computeErrors = function(DT, annoDT, writeControl = FALSE, pathInWhichToWrite = 
   #   WRITE OUTPUT
   #---------------------------------------------------------------------------------#
   if(writeControl){
+      print("Writing output.")
       # Will overwrite existing files of the same names.
       #dir.create(file.path(mainDir, subDir), showWarnings = FALSE)
       dir.create(pathInWhichToWrite, showWarnings = FALSE)
@@ -301,6 +305,7 @@ main = function(){
   # Loop through settings:
   settings = c("Indoor", "Outdoor")
   for (setting in settings){
+    printer("Computing errors for setting ", setting)
     # Set args:
     args = setArgs(setting)
     software = args[1]

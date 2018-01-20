@@ -16,7 +16,14 @@ packages = c('ggplot2', 'data.table', 'dplyr', 'tools')#, 'metrics', 'plotly', '
 installAndLoadPackages(packages)
 
 
-# Function Declarations:
+stopIfDoesNotExist <- function(pathString){
+    if(! file.exists(pathString)){
+        stop(paste0("Directory does not exist:", pathString))
+    }
+}
+
+
+
 #improved print function:
 printer <- function(string, var){
     print(paste0(string, " ", var))

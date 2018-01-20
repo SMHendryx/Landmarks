@@ -20,10 +20,12 @@ printer <- function(string, var){
 #--------------------------------------------------------------------------------#
 #  READ IN DATA
 #--------------------------------------------------------------------------------#
-softwares = c("OpenFace")
+softwares = c("OpenFace", "Face++")
 settings = c("Indoor", "Outdoor")
 inputFilePaths = c("/Users/seanmhendryx/Data/landmarks/experiments/OpenFace/errorResults/01_Indoor/normalized_error_for_each_landmark/Euclidean_distance_between_predictions_and_annotations.csv",
-  "/Users/seanmhendryx/Data/landmarks/experiments/OpenFace/errorResults/02_Outdoor/normalized_error_for_each_landmark/Euclidean_distance_between_predictions_and_annotations.csv")
+  "/Users/seanmhendryx/Data/landmarks/experiments/OpenFace/errorResults/02_Outdoor/normalized_error_for_each_landmark/Euclidean_distance_between_predictions_and_annotations.csv", 
+  "/Users/seanmhendryx/Data/landmarks/experiments/Face++/errorResults/01_Indoor/normalized_error_for_each_landmark/Euclidean_distance_between_predictions_and_annotations.csv",
+  "/Users/seanmhendryx/Data/landmarks/experiments/Face++/errorResults/02_Outdoor/normalized_error_for_each_landmark/Euclidean_distance_between_predictions_and_annotations.csv")
 
 
 DT = as.data.table(read.csv(inputFilePaths[1]))
@@ -48,15 +50,28 @@ for(software in softwares){
 #--------------------------------------------------------------------------------#
 # Plot errors by landmark:
 p = ggplot(data = DT,  mapping = aes(x = reorder(pointID, as.numeric(pointID)), y = normalizedDistance, color = software)) + geom_boxplot() + theme_bw() + 
-  labs(title = "Euclidean Distance by Facial Landmark", y = "Normalized Distance (% of interocular distance)", x = "Facial Landmark ID") + theme(plot.title = element_text(hjust = 0.5)) #center the plot title
+  labs(y = "Normalized Distance (% of interocular distance)", x = "Facial Landmark ID") + theme(plot.title = element_text(hjust = 0.5)) #center the plot title
 p
 
 # Same as above but removing outliers:
-outThresh = 3*sd(DT[,normalizedDistance])
+outThresh = 3*sd(DT[,normalizedDistance], na.rm = TRUE)
 p = ggplot(data = DT[normalizedDistance<=outThresh], mapping = aes(x = reorder(pointID, as.numeric(pointID)), y = normalizedDistance, color = software)) + geom_boxplot() + theme_bw() + 
-  labs(title = "Euclidean Distance by Facial Landmark with Outliers Removed", y = "Normalized Distance (% of interocular distance)", x = "Facial Landmark ID") + theme(plot.title = element_text(hjust = 0.5)) #center the plot title
-p = p + facet_grid(.~setting)
+  labs( y = "Normalized Distance (% of interocular distance)", x = "Facial Landmark ID") + theme(plot.title = element_text(hjust = 0.5)) #center the plot title
+# faceting by setting does not meaningfully change:
+#p = p + facet_grid(.~as.factor(setting))
+p
 
+
+# boxplot by software
+p = ggplot(data = DT, mapping = aes(x = software, y = normalizedDistance, color = software)) + geom_boxplot() + theme_bw() + 
+  labs( y = "Normalized Distance (% of interocular distance)", x = "Facial Landmark ID") + theme(plot.title = element_text(hjust = 0.5)) #center the plot title
+p
+
+# same but removing outliers:
+outThresh = 3*sd(DT[,normalizedDistance], na.rm = TRUE)
+p2 = ggplot(data = DT[normalizedDistance<=outThresh], mapping = aes(x = software, y = normalizedDistance, color = software)) + geom_boxplot() + theme_bw() + 
+  labs( y = "Normalized Distance (% of interocular distance)", x = "Facial Landmark ID") + theme(plot.title = element_text(hjust = 0.5)) #center the plot title
+p2
 
 
 p = ggplot(data = DT, mapping = aes(x = normalizedDistance, color = software, fill  = software)) + geom_density() + theme_bw()
@@ -72,25 +87,38 @@ faceBoundary = 1:17
 
 mouth = 49:68
 
-removeOutliers = FALSE
+removeOutliers = TRUE
 if (removeOutliers){
   DT = DT[normalizedDistance < outThresh]
 }
 
 # EYES:
 pEye = ggplot(data = DT[pointID %in% eyePoints],  mapping = aes(x = reorder(pointID, as.numeric(pointID)), y = normalizedDistance, color = software)) + geom_boxplot() + theme_bw() + 
-  labs(title = "Euclidean Distance by Facial Landmark for Eye Points", y = "Normalized Distance (% of interocular distance)", x = "Facial Landmark ID") + theme(plot.title = element_text(hjust = 0.5)) #center the plot title
+  labs( y = "Normalized Distance (% of interocular distance)", x = "Facial Landmark ID") + theme(plot.title = element_text(hjust = 0.5)) #center the plot title
 pEye
+p2 = ggplot(data = DT[pointID %in% eyePoints], mapping = aes(x = software, y = normalizedDistance, color = software)) + geom_boxplot() + theme_bw() + 
+  labs( y = "Normalized Distance (% of interocular distance)", x = "Facial Landmark ID") + theme(plot.title = element_text(hjust = 0.5)) #center the plot title
+p2
+
+
 
 # FACE OUTLINE
-dev.new()
+#dev.new()
 pFB = ggplot(data = DT[pointID %in% faceBoundary],  mapping = aes(x = reorder(pointID, as.numeric(pointID)), y = normalizedDistance, color = software)) + geom_boxplot() + theme_bw() + 
-  labs(title = "Euclidean Distance by Facial Landmark for Face Outline Points", y = "Normalized Distance (% of interocular distance)", x = "Facial Landmark ID") + theme(plot.title = element_text(hjust = 0.5)) #center the plot title
+  labs(y = "Normalized Distance (% of interocular distance)", x = "Facial Landmark ID") + theme(plot.title = element_text(hjust = 0.5)) #center the plot title
 pFB
+
+p2 = ggplot(data = DT[pointID %in% eyePoints], mapping = aes(x = software, y = normalizedDistance, color = software)) + geom_boxplot() + theme_bw() + 
+  labs( y = "Normalized Distance (% of interocular distance)", x = "Facial Landmark ID") + theme(plot.title = element_text(hjust = 0.5)) #center the plot title
+p2
+
 
 dev.new()
 # MOUTH:
 pM = ggplot(data = DT[pointID %in% mouth],  mapping = aes(x = reorder(pointID, as.numeric(pointID)), y = normalizedDistance, color = software)) + geom_boxplot() + theme_bw() + 
-  labs(title = "Euclidean Distance by Facial Landmark for Mouth Points", y = "Normalized Distance (% of interocular distance)", x = "Facial Landmark ID") + theme(plot.title = element_text(hjust = 0.5)) #center the plot title
+  labs(y = "Normalized Distance (% of interocular distance)", x = "Facial Landmark ID") + theme(plot.title = element_text(hjust = 0.5)) #center the plot title
 pM
+p2 = ggplot(data = DT[pointID %in% mouth], mapping = aes(x = software, y = normalizedDistance, color = software)) + geom_boxplot() + theme_bw() + 
+  labs( y = "Normalized Distance (% of interocular distance)", x = "Facial Landmark ID") + theme(plot.title = element_text(hjust = 0.5)) #center the plot title
+p2
 

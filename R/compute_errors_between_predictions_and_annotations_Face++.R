@@ -265,7 +265,7 @@ computeErrors = function(DT, annoDT, writeControl = FALSE, pathInWhichToWrite = 
       distDT[imageFace == imageFace_i, normalizedDistance := io_normalized_dist_face_i]
   }
 
-  print(software)
+  #print(software)
   # Compute Median Absolute Deviation (MAD) for all points, normalized by interocular distance:
   normalized_MAD_all_points = median(abs(errorByFaceDT[,RMSE]))
   print(paste0("Median Absolute Deviation (MAD) for all points, normalized by interocular distance:"))
